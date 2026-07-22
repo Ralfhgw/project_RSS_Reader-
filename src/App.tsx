@@ -361,7 +361,7 @@ function App() {
                 setCurrentArticlePage((page) => Math.min(page + 1, totalArticlePages - 1))
               }}
             >
-              Naechste 30
+              Nächste 30
             </button>
           </div>
         ) : null}
