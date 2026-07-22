@@ -15,24 +15,35 @@ A lean RSS reader built with Vite and React. It stores RSS feeds in local storag
 
     npm install
 
-2. Create a local env file from the example:
+2. Create your base env file:
 
     cp .env.example .env
 
-3. Start the app:
+3. For local development, create .env.development with:
+
+    VITE_RSS_PROXY=/api/rss?url=
+
+4. Start the app:
 
     npm run dev
 
-4. Add feeds directly in the feed management panel. They are saved in local storage.
+## Production build
+
+Create a .env.production file and point VITE_RSS_PROXY to a real server-side RSS proxy before running the production build.
+
+Example:
+
+    VITE_RSS_PROXY=https://your-domain.tld/api/rss?url=
+
+Without a real production proxy, many feeds will fail because browsers block direct RSS requests with CORS.
 
 ## Environment variables
 
 VITE_RSS_PROXY
 
-- Optional.
-- In local development, the app defaults to /api/rss?url= to avoid browser-side CORS issues.
-- For static deployment, point this to your own backend or RSS proxy endpoint if remote feeds do not send browser-safe CORS headers.
-- After changing .env, restart npm run dev so Vite reloads the proxy settings.
+- Optional in development.
+- In local development, the app can use /api/rss?url= through the Vite proxy.
+- In production, this should point to your own backend or RSS proxy endpoint.
 
 VITE_MAX_ITEMS_PER_FEED
 
@@ -42,8 +53,8 @@ VITE_MAX_ITEMS_PER_FEED
 
 ## Notes
 
-- If feeds are blocked by CORS or a proxy issue, the app falls back to demo content instead of breaking the experience.
 - Feed URLs are stored locally in the browser, not in a backend service.
+- A static webserver alone does not provide the /api/rss endpoint from vite.config.ts.
 
 ## Scripts
 
