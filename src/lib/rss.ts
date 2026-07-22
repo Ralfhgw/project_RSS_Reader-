@@ -102,7 +102,7 @@ function normalizeItem(sourceFeed: FeedConfig, item: Element, index: number): Fe
   return {
     id: sourceFeed.id + "-" + index + "-" + title,
     title: title || "Unbenannter Artikel",
-    summary: summary || "Die Quelle hat keine Kurzbeschreibung fuer diesen Eintrag geliefert.",
+    summary: summary || "Die Quelle hat keine Kurzbeschreibung für diesen Eintrag geliefert.",
     link: getLink(item),
     publishedAt: parsePublishedAt(getText(item, ["pubDate", "published", "updated"])),
     source: sourceFeed.name,
@@ -137,7 +137,7 @@ async function fetchFeedXml(url: string) {
     }
   }
 
-  throw new Error("Feed-Anfrage fuer " + url + " ist fehlgeschlagen. Versucht: " + failures.join(", "))
+  throw new Error("Feed-Anfrage für " + url + " ist fehlgeschlagen. Versucht: " + failures.join(", "))
 }
 
 async function loadSingleFeed(feed: FeedConfig) {
@@ -161,7 +161,7 @@ export async function loadConfiguredFeeds(feeds: FeedConfig[]): Promise<FeedLoad
     return {
       items: [],
       health: [],
-      message: "Fuege einen Feed hinzu, um deinen RSS-Stream aufzubauen.",
+      message: "Füge einen Feed hinzu, um deinen RSS-Stream aufzubauen.",
     }
   }
 
@@ -218,6 +218,6 @@ export async function loadConfiguredFeeds(feeds: FeedConfig[]): Promise<FeedLoad
       status: "offline",
     })),
     message:
-      "Die Live-Feeds waren nicht erreichbar, deshalb werden Demo-Artikel angezeigt. Pruefe die gespeicherten Feed-URLs oder die aktive Proxy-Konfiguration.",
+      "Die Live-Feeds waren nicht erreichbar, deshalb werden Demo-Artikel angezeigt. Prüfe die gespeicherten Feed-URLs oder die aktive Proxy-Konfiguration.",
   }
 }

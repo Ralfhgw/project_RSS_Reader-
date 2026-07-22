@@ -327,7 +327,7 @@ function App() {
                   <div className="story-footer">
                     <span className="topic-tag">{article.topic}</span>
                     <a className="story-link" href={article.link} target="_blank" rel="noreferrer">
-                      Artikel oeffnen
+                      Artikel öffnen
                     </a>
                   </div>
                 </article>
@@ -505,7 +505,7 @@ function App() {
         </ul>
 
         {displayedFeedHealth.length === 0 ? (
-          <p className="empty-state">Noch keine Feeds gespeichert. Fuege oben einen Feed hinzu, um deinen Stream aufzubauen.</p>
+          <p className="empty-state">Noch keine Feeds gespeichert. Füge oben einen Feed hinzu, um deinen Stream aufzubauen.</p>
         ) : null}
 
         {errorMessage ? <p className="error-text">{errorMessage}</p> : null}
