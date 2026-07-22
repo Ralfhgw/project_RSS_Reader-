@@ -464,7 +464,7 @@ function App() {
             </label>
 
             <button className="primary-button feed-submit" type="submit">
-              Feed hinzufuegen
+              Feed hinzufügen
             </button>
           </div>
         </form>
