@@ -19,29 +19,11 @@ export type FeedHealth = {
   id: string
   name: string
   topic: string
-  status: 'online' | 'offline' | 'error'
+  status: "online" | "offline" | "error"
 }
 
 export type FeedLoadResult = {
   items: FeedItem[]
   health: FeedHealth[]
   message: string
-}
-
-export type DigestSection = {
-  title: string
-  theme: string
-  summary: string
-}
-
-export type DigestResult = {
-  headline: string
-  intro: string
-  takeaway: string
-  watchlist: string
-  storyCount: number
-  coverageLabel: string
-  engineLabel: string
-  statusNote: string
-  sections: DigestSection[]
 }

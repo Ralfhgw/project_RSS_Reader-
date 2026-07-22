@@ -1,16 +1,10 @@
-import { useEffect, useDeferredValue, useRef, useState, useTransition } from 'react'
-import type { ChangeEvent, FormEvent } from 'react'
-import './App.css'
-import { appConfig } from './lib/config'
-import { createFeedId, loadStoredFeeds, parseStoredFeeds, saveStoredFeeds} from './lib/feedStorage'
-import { loadConfiguredFeeds } from './lib/rss'
-import {
-  createChannelDigestSection,
-  createDigestScaffold,
-  createEmptyDigest,
-  formatDistanceFromNow,
-} from './lib/summary'
-import type { DigestResult, FeedConfig, FeedHealth, FeedItem } from './types'
+import { useDeferredValue, useEffect, useRef, useState, useTransition } from "react"
+import type { ChangeEvent, FormEvent } from "react"
+import "./App.css"
+import { createFeedId, loadStoredFeeds, parseStoredFeeds, saveStoredFeeds } from "./lib/feedStorage"
+import { loadConfiguredFeeds } from "./lib/rss"
+import { formatDistanceFromNow } from "./lib/time"
+import type { FeedConfig, FeedHealth, FeedItem } from "./types"
 
 function App() {
   const articlesPerPage = 30
@@ -18,29 +12,26 @@ function App() {
   const [feeds, setFeeds] = useState<FeedConfig[]>(() => loadStoredFeeds())
   const [articles, setArticles] = useState<FeedItem[]>([])
   const [feedHealth, setFeedHealth] = useState<FeedHealth[]>([])
-  const [digest, setDigest] = useState<DigestResult>(() => createEmptyDigest())
-  const [lastUpdated, setLastUpdated] = useState<string>('')
-  const [errorMessage, setErrorMessage] = useState<string>('')
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedTopic, setSelectedTopic] = useState('Alle')
+  const [lastUpdated, setLastUpdated] = useState("")
+  const [errorMessage, setErrorMessage] = useState("")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedTopic, setSelectedTopic] = useState("Alle")
   const [selectedFeedId, setSelectedFeedId] = useState<string | null>(null)
   const [expandedArticleIds, setExpandedArticleIds] = useState<string[]>([])
   const [currentArticlePage, setCurrentArticlePage] = useState(0)
-  const [draftFeedName, setDraftFeedName] = useState('')
-  const [draftFeedUrl, setDraftFeedUrl] = useState('')
-  const [draftFeedTopic, setDraftFeedTopic] = useState('')
+  const [draftFeedName, setDraftFeedName] = useState("")
+  const [draftFeedUrl, setDraftFeedUrl] = useState("")
+  const [draftFeedTopic, setDraftFeedTopic] = useState("")
   const [isLoading, setIsLoading] = useState(true)
-  const [isDigestLoading, setIsDigestLoading] = useState(false)
   const [isPending, startTransition] = useTransition()
   const deferredSearchTerm = useDeferredValue(searchTerm)
   const importInputRef = useRef<HTMLInputElement | null>(null)
-  const digestRequestIdRef = useRef(0)
   const streamPanelRef = useRef<HTMLElement | null>(null)
   const hasMountedArticlePaginationRef = useRef(false)
 
   async function refreshFeeds(activeFeeds: FeedConfig[]) {
     setIsLoading(true)
-    setErrorMessage('')
+    setErrorMessage("")
 
     try {
       const result = await loadConfiguredFeeds(activeFeeds)
@@ -53,7 +44,7 @@ function App() {
       })
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : 'Beim Aktualisieren der Feeds ist ein Problem aufgetreten.'
+        error instanceof Error ? error.message : "Beim Aktualisieren der Feeds ist ein Problem aufgetreten."
 
       startTransition(() => {
         setArticles([])
@@ -78,8 +69,8 @@ function App() {
     }
 
     streamPanelRef.current?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
+      behavior: "smooth",
+      block: "start",
     })
   }, [currentArticlePage])
 
@@ -88,15 +79,15 @@ function App() {
 
     const trimmedName = draftFeedName.trim()
     const trimmedUrl = draftFeedUrl.trim()
-    const trimmedTopic = draftFeedTopic.trim() || 'Allgemein'
+    const trimmedTopic = draftFeedTopic.trim() || "Allgemein"
 
     if (!trimmedName || !trimmedUrl) {
-      setErrorMessage('Bitte gib mindestens einen Namen und eine gueltige Feed-URL ein.')
+      setErrorMessage("Bitte gib mindestens einen Namen und eine gueltige Feed-URL ein.")
       return
     }
 
     const newFeed: FeedConfig = {
-      id: createFeedId(`${trimmedName}-${Date.now()}`),
+      id: createFeedId(trimmedName + "-" + Date.now()),
       name: trimmedName,
       url: trimmedUrl,
       topic: trimmedTopic,
@@ -105,11 +96,11 @@ function App() {
     const nextFeeds = [...feeds, newFeed]
     saveStoredFeeds(nextFeeds)
     setFeeds(nextFeeds)
-    setDraftFeedName('')
-    setDraftFeedUrl('')
-    setDraftFeedTopic('')
+    setDraftFeedName("")
+    setDraftFeedUrl("")
+    setDraftFeedTopic("")
     setSelectedFeedId(null)
-    setErrorMessage('')
+    setErrorMessage("")
   }
 
   function handleDeleteFeed(feedId: string) {
@@ -132,22 +123,22 @@ function App() {
       return summary
     }
 
-    return `${summary.slice(0, collapsedSummaryLength).trimEnd()}...`
+    return summary.slice(0, collapsedSummaryLength).trimEnd() + "..."
   }
 
   function handleExportFeeds() {
     const exportBlob = new Blob([JSON.stringify(feeds, null, 2)], {
-      type: 'application/json',
+      type: "application/json",
     })
     const exportUrl = window.URL.createObjectURL(exportBlob)
-    const downloadLink = document.createElement('a')
+    const downloadLink = document.createElement("a")
     const stamp = new Date().toISOString().slice(0, 10)
 
     downloadLink.href = exportUrl
-    downloadLink.download = `pulseboard-feeds-${stamp}.json`
+    downloadLink.download = "pulseboard-feeds-" + stamp + ".json"
     downloadLink.click()
     window.URL.revokeObjectURL(exportUrl)
-    setErrorMessage('')
+    setErrorMessage("")
   }
 
   async function handleImportFeeds(event: ChangeEvent<HTMLInputElement>) {
@@ -162,19 +153,19 @@ function App() {
       const importedFeeds = parseStoredFeeds(rawValue)
 
       if (!importedFeeds) {
-        throw new Error('Die Importdatei muss eine gueltige Feed-Liste enthalten.')
+        throw new Error("Die Importdatei muss eine gueltige Feed-Liste enthalten.")
       }
 
       saveStoredFeeds(importedFeeds)
       setFeeds(importedFeeds)
       setSelectedFeedId(null)
-      setErrorMessage('')
+      setErrorMessage("")
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : 'Der Import ist fehlgeschlagen. Bitte verwende einen gueltigen JSON-Export.'
+        error instanceof Error ? error.message : "Der Import ist fehlgeschlagen. Bitte verwende einen gueltigen JSON-Export."
       setErrorMessage(message)
     } finally {
-      event.target.value = ''
+      event.target.value = ""
     }
   }
 
@@ -184,15 +175,15 @@ function App() {
         id: feed.id,
         name: feed.name,
         topic: feed.topic,
-        status: 'offline' as const,
+        status: "offline" as const,
       }
     )
   })
-  const availableTopics = ['Alle', ...new Set(articles.map((article) => article.topic))]
+  const availableTopics = ["Alle", ...new Set(articles.map((article) => article.topic))]
   const normalizedQuery = deferredSearchTerm.trim().toLowerCase()
   const filteredArticles = articles.filter((article) => {
-    const matchesTopic = selectedTopic === 'Alle' || article.topic === selectedTopic
-    const haystack = `${article.title} ${article.summary} ${article.source}`.toLowerCase()
+    const matchesTopic = selectedTopic === "Alle" || article.topic === selectedTopic
+    const haystack = (article.title + " " + article.summary + " " + article.source).toLowerCase()
     const matchesQuery = normalizedQuery.length === 0 || haystack.includes(normalizedQuery)
 
     return matchesTopic && matchesQuery
@@ -201,7 +192,7 @@ function App() {
   const currentPage = Math.min(currentArticlePage, totalArticlePages - 1)
   const pageStart = currentPage * articlesPerPage
   const visibleArticles = filteredArticles.slice(pageStart, pageStart + articlesPerPage)
-  const activeSources = displayedFeedHealth.filter((feed) => feed.status === 'online').length
+  const activeSources = displayedFeedHealth.filter((feed) => feed.status === "online").length
 
   function handleTopicSelect(topic: string) {
     setSelectedTopic(topic)
@@ -213,116 +204,33 @@ function App() {
     setCurrentArticlePage(0)
   }
 
-  useEffect(() => {
-    const requestId = digestRequestIdRef.current + 1
-    digestRequestIdRef.current = requestId
-
-    if (articles.length === 0) {
-      queueMicrotask(() => {
-        if (digestRequestIdRef.current !== requestId) {
-          return
-        }
-
-        setDigest(createEmptyDigest())
-        setIsDigestLoading(false)
-      })
-
-      return
-    }
-
-    const scaffoldDigest = createDigestScaffold(articles, displayedFeedHealth)
-
-    queueMicrotask(() => {
-      if (digestRequestIdRef.current !== requestId) {
-        return
-      }
-
-      setDigest(scaffoldDigest)
-      setIsDigestLoading(true)
-    })
-
-    let completed = 0
-    const total = displayedFeedHealth.length
-    let fallbackCount = 0
-
-    displayedFeedHealth.forEach((channel) => {
-      void createChannelDigestSection(channel, articles).then((result) => {
-        if (digestRequestIdRef.current !== requestId) {
-          return
-        }
-
-        completed += 1
-        if (result.mode === 'fallback') {
-          fallbackCount += 1
-        }
-
-        const statusNote =
-          completed < total
-            ? fallbackCount > 0
-              ? `${completed} von ${total} Kanalzusammenfassungen sind bereit. ${fallbackCount} davon verwenden aktuell die lokale Zusammenfassung.`
-              : `${completed} von ${total} Kanalzusammenfassungen sind bereit. Du kannst schon lesen, waehrend der Rest noch erzeugt wird.`
-            : fallbackCount === 0
-              ? 'Alle Kanalzusammenfassungen wurden über den konfigurierten Llama-Endpunkt erstellt.'
-              : fallbackCount === total
-                ? 'Alle Kanalzusammenfassungen verwenden aktuell die lokale Zusammenfassung, weil der Llama-Endpunkt keine verwertbare Antwort geliefert hat.'
-                : `${fallbackCount} von ${total} Kanalzusammenfassungen verwenden aktuell die lokale Zusammenfassung, weil der Llama-Endpunkt nicht fuer alle Kanaele erfolgreich geantwortet hat.`
-
-        setDigest((current) => ({
-          ...current,
-          statusNote,
-          sections: current.sections.map((currentSection) =>
-            currentSection.title === result.section.title ? result.section : currentSection,
-          ),
-        }))
-
-        if (completed >= total) {
-          setIsDigestLoading(false)
-        }
-      })
-    })
-
-    return () => {
-      if (digestRequestIdRef.current === requestId) {
-        digestRequestIdRef.current += 1
-      }
-    }
-  }, [articles, feedHealth, feeds])
-
   return (
     <main className="app-shell">
-      {/* Header */}
       <section className="hero-panel">
         <div className="hero-copy">
-          <span className="eyebrow">RSS-Reader mit Digest-Fokus</span>
-          <h1>Stay current without scanning tabs.</h1>
+          <span className="eyebrow">RSS-Reader fuer Kanäle und Filter</span>
+          <h1>Behalte deine Feeds im Blick.</h1>
           <p className="hero-text">
-            Pulseboard fasst mehrere RSS-Feeds in einer schnellen Übersicht zusammen und
-            haelt die Originalartikel direkt griffbereit, wenn du mehr Details brauchst.
+            Pulseboard sammelt mehrere RSS-Quellen an einem Ort, merkt sich deine Kanäle lokal im Browser
+            und hilft dir beim schnellen Filtern der relevanten Artikel.
           </p>
         </div>
 
         <div className="hero-actions">
-          <button
-            className="primary-button"
-            onClick={() => void refreshFeeds(feeds)}
-            disabled={isLoading}
-          >
-            {isLoading ? 'Feeds werden geladen...' : 'Digest aktualisieren'}
+          <button className="primary-button" onClick={() => void refreshFeeds(feeds)} disabled={isLoading}>
+            {isLoading ? "Feeds werden geladen..." : "Feeds aktualisieren"}
           </button>
           <p className="status-copy">
-            {lastUpdated
-              ? `Aktualisiert ${formatDistanceFromNow(lastUpdated)}`
-              : 'Bereit, gespeicherte Feeds zu laden'}
+            {lastUpdated ? "Aktualisiert " + formatDistanceFromNow(lastUpdated) : "Bereit, gespeicherte Feeds zu laden"}
           </p>
         </div>
       </section>
 
-      {/* 4 Boxen */}
-      <section className="metrics-grid" aria-label="Digest-Metriken">
+      <section className="metrics-grid" aria-label="RSS-Metriken">
         <article className="metric-card emphasis">
-          <span className="metric-label">Zusammenfassungsmodus</span>
-          <strong>{appConfig.summaryModeLabel}</strong>
-          <p>{appConfig.summaryModeDescription}</p>
+          <span className="metric-label">Gespeicherte Feeds</span>
+          <strong>{feeds.length}</strong>
+          <p>Deine RSS-Kanäle bleiben lokal gespeichert und können jederzeit exportiert werden.</p>
         </article>
 
         <article className="metric-card">
@@ -330,35 +238,34 @@ function App() {
           <strong>
             {activeSources}/{displayedFeedHealth.length}
           </strong>
-          <p>Feeds werden im lokalen Speicher gesichert, dadurch bleibt das Setup schlank.</p>
+          <p>So siehst du sofort, wie viele deiner gespeicherten Kanäle aktuell erreichbar sind.</p>
         </article>
 
         <article className="metric-card">
-          <span className="metric-label">Digest-Abdeckung</span>
-          <strong>{digest.coverageLabel}</strong>
-          <p>Die Oberfläche priorisiert gebündelte Zusammenfassungen vor einzelnen Rohmeldungen.</p>
+          <span className="metric-label">Geladene Artikel</span>
+          <strong>{articles.length}</strong>
+          <p>Alle Treffer aus den aktiven Feeds landen direkt im Stream und in den Filtern.</p>
         </article>
 
         <article className="metric-card">
-          <span className="metric-label">Antwortziel</span>
-          <strong>&lt; 3 Sekunden</strong>
-          <p>Der Digest-Proxy kapselt die Modellintegration und macht spätere Wechsel einfacher.</p>
+          <span className="metric-label">Filtertreffer</span>
+          <strong>{filteredArticles.length}</strong>
+          <p>Suche und Themenfilter reduzieren den Stream sofort auf die relevanten Meldungen.</p>
         </article>
       </section>
 
-      {/* Feed Search */}
       <section className="stacked-layout">
         <article className="panel control-panel">
-
-          {/* Header of the Box */}
           <div className="panel-header">
             <div>
               <span className="panel-kicker">Feed-Steuerung</span>
               <h2>Stream filtern</h2>
             </div>
+            <span className={"pill " + (isLoading || isPending ? "pill-live" : "")}>
+              {selectedTopic === "Alle" ? "Alle Themen" : selectedTopic}
+            </span>
           </div>
-          
-          {/* Search Field */}
+
           <label className="field">
             <span>Schlagzeilen durchsuchen</span>
             <input
@@ -368,13 +275,12 @@ function App() {
               onChange={(event) => handleSearchChange(event.target.value)}
             />
           </label>
-          
-          {/* Filter Buttons */}
+
           <div className="topic-list" role="tablist" aria-label="Themenfilter">
             {availableTopics.map((topic) => (
               <button
                 key={topic}
-                className={topic === selectedTopic ? 'topic-chip active' : 'topic-chip'}
+                className={topic === selectedTopic ? "topic-chip active" : "topic-chip"}
                 onClick={() => handleTopicSelect(topic)}
                 type="button"
               >
@@ -383,116 +289,85 @@ function App() {
             ))}
           </div>
         </article>
-
-        <article className="panel digest-panel">
-          <div className="panel-header">
-            <div>
-              <span className="panel-kicker">Heutiger Digest</span>
-              <h2>{digest.headline}</h2>
-            </div>
-            <span className={`pill ${isDigestLoading || isPending ? 'pill-live' : ''}`}>
-              {isDigestLoading ? 'Digest wird erstellt' : digest.engineLabel}
-            </span>
-          </div>
-
-          <p className="digest-intro">{digest.intro}</p>
-          <p className="digest-status">{digest.statusNote}</p>
-
-          <div className="digest-section-list">
-            {digest.sections.map((section) => (
-              <section key={section.title} className="digest-section">
-                <div className="digest-section-header">
-                  <h3>{section.title}</h3>
-                  <span>{section.theme}</span>
-                </div>
-                <p>{section.summary}</p>
-              </section>
-            ))}
-          </div>
-
-          <div className="digest-summary-grid">
-            <article className="digest-summary-card">
-              <span className="panel-kicker">Heute im Fokus</span>
-              <p>{digest.takeaway}</p>
-            </article>
-            <article className="digest-summary-card">
-              <span className="panel-kicker">Nächster Trend</span>
-              <p>{digest.watchlist}</p>
-            </article>
-          </div>
-        </article>
       </section>
 
-        <section ref={streamPanelRef} className="panel stream-panel">
+      <section ref={streamPanelRef} className="panel stream-panel">
         <div className="panel-header">
           <div>
-            <span className="panel-kicker">Roh-Feed</span>
-            <h2>Artikel, wenn du tiefer einsteigen willst</h2>
+            <span className="panel-kicker">Artikel-Stream</span>
+            <h2>Aktuelle Meldungen aus deinen Kanälen</h2>
           </div>
           <span className="pill">{filteredArticles.length} passende Artikel</span>
         </div>
 
-        <div className="stream-list">
-          {visibleArticles.map((article) => {
-            const isExpanded = expandedArticleIds.includes(article.id)
-            const displayedSummary = isExpanded ? article.summary : getCollapsedSummary(article.summary)
+        {visibleArticles.length > 0 ? (
+          <div className="stream-list">
+            {visibleArticles.map((article) => {
+              const isExpanded = expandedArticleIds.includes(article.id)
+              const displayedSummary = isExpanded ? article.summary : getCollapsedSummary(article.summary)
 
-            return (
-              <article key={article.id} className="story-card">
-                <div className="story-meta">
-                  <span>{article.source}</span>
-                  <span>{formatDistanceFromNow(article.publishedAt)}</span>
-                </div>
-                <h3>{article.title}</h3>
-                <button
-                  type="button"
-                  className={isExpanded ? 'story-summary-toggle is-expanded' : 'story-summary-toggle'}
-                  onClick={() => {
-                    toggleArticleExpansion(article)
-                  }}
-                >
-                  <span className={isExpanded ? 'story-summary-expanded' : 'story-summary-collapsed'}>
-                    {displayedSummary}
-                  </span>
-                </button>
-                <div className="story-footer">
-                  <span className="topic-tag">{article.topic}</span>
-                  <a className="story-link" href={article.link} target="_blank" rel="noreferrer">
-                    Artikel öffnen
-                  </a>
-                </div>
-              </article>
-            )
-          })}
-        </div>
-        <div className="pagination-row">
-          <button
-            className="pagination-button"
-            type="button"
-            disabled={currentPage === 0}
-            onClick={() => {
-              setCurrentArticlePage((page) => Math.max(page - 1, 0))
-            }}
-          >
-            Vorherige 30
-          </button>
-          <span className="pagination-status">
-            Seite {currentPage + 1} von {totalArticlePages}
-          </span>
-          <button
-            className="pagination-button"
-            type="button"
-            disabled={currentPage >= totalArticlePages - 1}
-            onClick={() => {
-              setCurrentArticlePage((page) => Math.min(page + 1, totalArticlePages - 1))
-            }}
-          >
-            Nächste 30
-          </button>
-        </div>
+              return (
+                <article key={article.id} className="story-card">
+                  <div className="story-meta">
+                    <span>{article.source}</span>
+                    <span>{formatDistanceFromNow(article.publishedAt)}</span>
+                  </div>
+                  <h3>{article.title}</h3>
+                  <button
+                    type="button"
+                    className={isExpanded ? "story-summary-toggle is-expanded" : "story-summary-toggle"}
+                    onClick={() => {
+                      toggleArticleExpansion(article)
+                    }}
+                  >
+                    <span className={isExpanded ? "story-summary-expanded" : "story-summary-collapsed"}>
+                      {displayedSummary}
+                    </span>
+                  </button>
+                  <div className="story-footer">
+                    <span className="topic-tag">{article.topic}</span>
+                    <a className="story-link" href={article.link} target="_blank" rel="noreferrer">
+                      Artikel oeffnen
+                    </a>
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+        ) : (
+          <p className="empty-state">Keine Artikel passen aktuell zu deinem Suchbegriff oder Themenfilter.</p>
+        )}
+
+        {filteredArticles.length > 0 ? (
+          <div className="pagination-row">
+            <button
+              className="pagination-button"
+              type="button"
+              disabled={currentPage === 0}
+              onClick={() => {
+                setCurrentArticlePage((page) => Math.max(page - 1, 0))
+              }}
+            >
+              Vorherige 30
+            </button>
+            <span className="pagination-status">
+              Seite {currentPage + 1} von {totalArticlePages}
+            </span>
+            <button
+              className="pagination-button"
+              type="button"
+              disabled={currentPage >= totalArticlePages - 1}
+              onClick={() => {
+                setCurrentArticlePage((page) => Math.min(page + 1, totalArticlePages - 1))
+              }}
+            >
+              Naechste 30
+            </button>
+          </div>
+        ) : null}
       </section>
 
-        <article
+      <article
         className="panel source-panel"
         onClick={() => {
           setSelectedFeedId(null)
@@ -534,8 +409,8 @@ function App() {
             <button
               className="icon-action-button"
               type="button"
-              aria-label="RSS-Liste aus JSON-Datei importieren und gespeicherte Feeds überschreiben"
-              title="Feed-Liste importieren und gespeicherte Feeds überschreiben"
+              aria-label="RSS-Liste aus JSON-Datei importieren und gespeicherte Feeds ueberschreiben"
+              title="Feed-Liste importieren und gespeicherte Feeds ueberschreiben"
               onClick={() => {
                 importInputRef.current?.click()
               }}
@@ -589,16 +464,15 @@ function App() {
             </label>
 
             <button className="primary-button feed-submit" type="submit">
-              Feed hinzufügen
+              Feed hinzufuegen
             </button>
           </div>
         </form>
-
         <ul className="source-list">
           {displayedFeedHealth.map((feed) => (
             <li
               key={feed.id}
-              className={`source-item source-${feed.status}`}
+              className={"source-item source-" + feed.status}
               onClick={(event) => {
                 event.stopPropagation()
                 setSelectedFeedId((current) => (current === feed.id ? null : feed.id))
@@ -612,7 +486,7 @@ function App() {
                 <button
                   className="delete-feed-button"
                   type="button"
-                  aria-label={`${feed.name} loeschen`}
+                  aria-label={feed.name + " löschen"}
                   onClick={(event) => {
                     event.stopPropagation()
                     handleDeleteFeed(feed.id)
@@ -631,7 +505,7 @@ function App() {
         </ul>
 
         {displayedFeedHealth.length === 0 ? (
-          <p className="empty-state">Noch keine Feeds gespeichert. Füge oben einen Feed hinzu, um den Digest zu starten.</p>
+          <p className="empty-state">Noch keine Feeds gespeichert. Fuege oben einen Feed hinzu, um deinen Stream aufzubauen.</p>
         ) : null}
 
         {errorMessage ? <p className="error-text">{errorMessage}</p> : null}
