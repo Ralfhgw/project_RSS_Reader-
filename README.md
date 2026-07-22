@@ -2,62 +2,44 @@
 
 A lean RSS reader built with Vite and React. It stores RSS feeds in local storage, loads the latest entries, and lets users filter the stream by topic or keyword before opening full articles.
 
-## Why this MVP works
-
-- Feed management lives directly in the interface and persists locally in the browser.
-- Search and topic filters make large RSS streams easier to scan.
-- Import and export keep the saved channel list portable.
-- Responsive panels are designed for mobile, tablet, and desktop from the start.
-
 ## Quick start
 
 1. Install dependencies:
 
     npm install
 
-2. Create your base env file:
-
-    cp .env.example .env
-
-3. For local development, create .env.development with:
-
-    VITE_RSS_PROXY=/api/rss?url=
-
-4. Start the app:
+2. Start the app:
 
     npm run dev
 
-## Production build
+## Proxy behavior
 
-Create a .env.production file and point VITE_RSS_PROXY to a real server-side RSS proxy before running the production build.
+- In development, the app uses the Vite proxy at `/api/rss?url=`.
+- In production, the app uses the PHP endpoint at `/api/rss/?url=`.
+- You only need `VITE_RSS_PROXY` if you want to override those defaults.
 
-Example:
+## Production deployment
 
-    VITE_RSS_PROXY=https://your-domain.tld/api/rss?url=
+After `npm run build`, make sure your webserver serves the contents of `dist/` and executes `dist/api/rss/index.php` as PHP.
 
-Without a real production proxy, many feeds will fail because browsers block direct RSS requests with CORS.
+If your server does not execute PHP inside the deployed app directory, the RSS proxy will not work and feeds will fail with CORS errors.
 
 ## Environment variables
 
 VITE_RSS_PROXY
 
-- Optional in development.
-- In local development, the app can use /api/rss?url= through the Vite proxy.
-- In production, this should point to your own backend or RSS proxy endpoint.
+- Optional override for the RSS proxy URL.
+- Default in development: `/api/rss?url=`
+- Default in production: `/api/rss/?url=`
 
 VITE_MAX_ITEMS_PER_FEED
 
 - Optional.
 - Controls how many entries are pulled from each feed.
-- Default: 6
-
-## Notes
-
-- Feed URLs are stored locally in the browser, not in a backend service.
-- A static webserver alone does not provide the /api/rss endpoint from vite.config.ts.
+- Default: `6`
 
 ## Scripts
 
-- npm run dev starts the Vite dev server.
-- npm run build builds the production bundle.
-- npm run lint runs ESLint.
+- `npm run dev` starts the Vite dev server.
+- `npm run build` builds the production bundle.
+- `npm run lint` runs ESLint.

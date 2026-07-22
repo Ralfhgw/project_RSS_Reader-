@@ -28,6 +28,6 @@ function parseMaxItems(value: string | undefined) {
 }
 
 export const appConfig = {
-  rssProxy: import.meta.env.VITE_RSS_PROXY ?? (import.meta.env.DEV ? "/api/rss?url=" : ""),
+  rssProxy: import.meta.env.VITE_RSS_PROXY ?? (import.meta.env.DEV ? "/api/rss?url=" : "/api/rss/?url="),
   maxItemsPerFeed: parseMaxItems(import.meta.env.VITE_MAX_ITEMS_PER_FEED),
 }
